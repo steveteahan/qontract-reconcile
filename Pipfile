@@ -1,0 +1,47 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+sretoolbox = "==0.*"
+Click = "==7.*"
+graphqlclient = "==0.*"
+toml = "==0.*"
+jsonpath-rw = "==1.*"
+PyGithub = "==1.*"
+hvac = "==0.*"
+ldap3 = "==2.*"
+anymarkup = "==0.*"
+python-gitlab = "==1.*"
+semver = "==2.*"
+python-terraform = "==0.*"
+boto3 = "==1.*"
+botocore = "==1.*"
+urllib3 = "==1.*"
+slackclient = "==1.*"
+pypd = "==1.*"
+Jinja2 = "==2.*"
+jira = "==2.*"
+pyOpenSSL = "==19.*"
+"ruamel.yaml" = "==0.*"
+terrascript = "==0.*"
+tabulate = "==0.*"
+UnleashClient = "==3.*"
+prometheus-client = "==0.*"
+sentry-sdk = "==0.*"
+jenkins-job-builder = "==2.*"
+tzlocal = "==2.*"
+parse = "==1.*"
+sendgrid = "==6.*"
+dnspython = "==2.*"
+requests = "==2.*"
+kubernetes = "==12.*"
+openshift = "==0.*"
+websocket-client = "==0.*"
+sshtunnel = "==0.*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"
