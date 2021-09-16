@@ -1,12 +1,11 @@
 import logging
-from typing import Sequence, Dict, Any, Mapping, Optional
+from typing import Sequence, Dict, Any, Optional
 
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from slack_sdk.http_retry import RateLimitErrorRetryHandler, RetryHandler, \
     RetryState, HttpRequest, HttpResponse
 
-from reconcile.utils.secret_reader import SecretReader
 from reconcile.utils.config import get_config
 
 MAX_RETRIES = 5
@@ -38,15 +37,13 @@ class SlackApi:
 
     def __init__(self,
                  workspace_name: str,
-                 token: Mapping[str, str],
-                 settings: Optional[Mapping[str, Any]] = None,
+                 client: WebClient,
                  init_usergroups=True,
                  channel: Optional[str] = None,
                  **chat_kwargs) -> None:
         """
         :param workspace_name: Slack workspace name (ex. coreos)
-        :param token: data to pass to SecretReader.read() to get the token
-        :param settings: settings to pass to SecretReader
+        :param client: Slack workspace client
         :param init_usergroups: whether or not to get a list of all Slack
         usergroups when instantiated
         :param channel: the Slack channel to post messages to, only used
@@ -55,11 +52,7 @@ class SlackApi:
         channel messages
         """
         self.workspace_name = workspace_name
-
-        secret_reader = SecretReader(settings=settings)
-        slack_token = secret_reader.read(token)
-
-        self._sc = WebClient(token=slack_token)
+        self._sc = client
         self._configure_client_retry()
 
         self._results: Dict[str, Any] = {}
@@ -175,7 +168,7 @@ class SlackApi:
                       'empty usergroup will not work')
         return ''
 
-    def get_user_id_by_name(self, user_name: str) -> str:
+    def get_user_id_by_name(self, user_name: str, mail_address: str) -> str:
         """
         Get user id from their username.
 
@@ -185,8 +178,6 @@ class SlackApi:
         Slack API
         :raises UserNotFoundException: if the Slack user is not found
         """
-        config = get_config()
-        mail_address = config['smtp']['mail_address']
 
         try:
             result = self._sc.users_lookupByEmail(

@@ -3,6 +3,7 @@ import logging
 from urllib.parse import urlparse
 from sretoolbox.utils import retry
 
+from reconcile.settings import Settings
 from reconcile.utils import gql
 from reconcile.utils.github_api import GithubApi
 from reconcile.utils.gitlab_api import GitLabApi
@@ -89,27 +90,22 @@ def get_permissions():
     return [p for p in permissions if p['service'] == 'slack-usergroup']
 
 
-def get_slack_map():
-    settings = queries.get_app_interface_settings()
-    permissions = get_permissions()
+def get_slack_map(settings: Settings):
+
     slack_map = {}
-    for sp in permissions:
-        workspace = sp['workspace']
-        workspace_name = workspace['name']
-        if workspace_name in slack_map:
-            continue
+
+    for workspace in settings.slack_workspaces:
 
         workspace_spec = {
             "slack": SlackApi(
-                workspace_name,
-                workspace['token'],
+                workspace['name'],
+                settings.get_slack_client(workspace['name']),
                 settings=settings),
             "managed_usergroups": workspace['managedUsergroups']
         }
-        slack_map[workspace_name] = workspace_spec
+        slack_map[workspace['name']] = workspace_spec
 
     return slack_map
-
 
 def get_pagerduty_map():
     instances = queries.get_pagerduty_instances()
@@ -472,7 +468,8 @@ def act(current_state, desired_state, slack_map, dry_run=True):
 
 
 def run(dry_run):
-    slack_map = get_slack_map()
+    settings = Settings()
+    slack_map = get_slack_map(settings)
     pagerduty_map = get_pagerduty_map()
     desired_state = get_desired_state(slack_map, pagerduty_map)
     current_state = get_current_state(slack_map)
