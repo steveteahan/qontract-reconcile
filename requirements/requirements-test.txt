@@ -4,7 +4,7 @@ httpretty
 kubernetes~=12.0
 pylint~=2.13
 pytest~=7.1
-pytest-cov~=2.12
+pytest-cov~=3.0
 pytest-mock~=3.6
 responses
 testslide~=2.7
